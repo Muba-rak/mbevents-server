@@ -117,7 +117,8 @@ const createEvent = async (req, res) => {
       title,
     } = req.body;
 
-    const imageFile = req.files.image.tempFilePath;
+    const imageFile = req.files?.image?.tempFilePath;
+
     // Validate required fields
     if (
       !date ||
@@ -127,9 +128,10 @@ const createEvent = async (req, res) => {
       !description ||
       !tags ||
       !free ||
-      !title
+      !title ||
+      imageFile
     ) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     // Upload the image to Cloudinary
@@ -169,7 +171,7 @@ const createEvent = async (req, res) => {
   } catch (error) {
     console.log(error);
 
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 

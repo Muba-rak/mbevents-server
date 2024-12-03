@@ -98,7 +98,7 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -143,9 +143,8 @@ const changePassword = async (req, res) => {
     await user.save();
 
     return res.status(200).json({ message: "Password changed successfully" });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -195,9 +194,7 @@ const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -236,9 +233,7 @@ const resetPassword = async (req, res) => {
       .status(200)
       .json({ message: "Password has been reset successfully", success: true });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
