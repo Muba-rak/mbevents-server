@@ -142,6 +142,7 @@ const createEvent = async (req, res) => {
     // Prepare the new event data
     const newEvent = new Event({
       image: uploadedImage.secure_url, // URL of the uploaded image
+      title,
       date,
       startTime,
       endTime,
@@ -166,7 +167,9 @@ const createEvent = async (req, res) => {
       event: savedEvent,
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log(error);
+
+    res.status(500).json({ error: error.message });
   }
 };
 

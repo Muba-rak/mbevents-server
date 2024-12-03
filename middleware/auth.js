@@ -6,7 +6,7 @@ const auth = async (req, res, next) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res
       .status(401)
-      .json({ success: false, message: "Authentication failed" });
+      .json({ success: false, message: "Unauthorized to Perform Action" });
   }
 
   const token = authHeader.split(" ")[1];
@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
     if (!payload) {
       return res
         .status(401)
-        .json({ success: false, msg: "Unauthorized authentication" });
+        .json({ success: false, msg: "Authentication Failed" });
     }
 
     req.user = {
