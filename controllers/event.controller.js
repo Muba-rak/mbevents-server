@@ -5,13 +5,19 @@ const fs = require("fs");
 
 //get all events with pagination
 const getAllEvents = async (req, res) => {
-  const { location, category, tag, price, title } = req.query;
+  const { location, category, tag, price, searchTerm } = req.query;
   const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
   const limit = 10;
   const queryObject = {};
+  queryObject.date = { $gte: new Date().setHours(0, 0, 0, 0) }; // Events starting from today at midnight
   let result = Event.find(queryObject);
-  if (title) {
-    queryObject.title = { $regex: title, $options: "i" };
+  if (searchTerm) {
+    const regex = { $regex: searchTerm, $options: "i" };
+    queryObject.$or = [
+      { title: regex },
+      { location: regex },
+      { category: regex },
+    ];
   }
   if (location) {
     queryObject.location = { $regex: location, $options: "i" };
@@ -20,7 +26,7 @@ const getAllEvents = async (req, res) => {
     queryObject.category = { $regex: category, $options: "i" };
   }
   if (tag) {
-    queryObject.tags = { $regex: tag, $options: "i" };
+    queryObject.tags = { $in: tag.split(",") };
   }
   if (price) {
     if (price === "free") {
@@ -75,7 +81,13 @@ const getSingleEvent = async (req, res) => {
 
 const getUpcomingEvents = async (req, res) => {
   try {
-    const upcomingEvents = await Event.find().sort("-createdAt").limit(6);
+    const currentDate = new Date(); // Get the current date
+
+    // Find events where the date is in the future or today, sorted by date in ascending order
+    const upcomingEvents = await Event.find({ date: { $gte: currentDate } })
+      .sort("date") // Sort by `date` in ascending order
+      .limit(6); // Limit to 6 events
+
     res.status(200).json({ success: true, events: upcomingEvents });
   } catch (error) {
     console.log(error);
@@ -87,9 +99,16 @@ const getUpcomingEvents = async (req, res) => {
 
 const getFreeEvents = async (req, res) => {
   try {
-    const freeEvents = await Event.find({ price: { free: true } })
-      .sort("-createdAt")
-      .limit(6);
+    const currentDate = new Date(); // Get the current date
+
+    // Find free events with a date in the future or today
+    const freeEvents = await Event.find({
+      "price.free": true, // Ensure the `free` field is true
+      date: { $gte: currentDate }, // Ensure the event date is today or in the future
+    })
+      .sort("date") // Sort by date in ascending order
+      .limit(6); // Limit to 6 events
+
     res.status(200).json({ success: true, events: freeEvents });
   } catch (error) {
     res
