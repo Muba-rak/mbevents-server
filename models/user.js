@@ -35,6 +35,12 @@ const userSchema = new Schema(
 
     resetToken: String, // For forgot password functionality
     resetTokenExpiry: Date,
+    yourevents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "event", // References the Event model
+      },
+    ],
   },
   { timestamps: true }
 );
