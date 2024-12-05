@@ -53,19 +53,19 @@ const getAllEvents = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ message: "Something went wrong", msg: error.message });
+    res.status(400).json({ error: "Something went wrong", msg: error.message });
   }
 };
 
 const getSingleEvent = async (req, res) => {
   const { eventId } = req.params;
+  const currentDate = new Date();
   try {
     const event = await Event.findById({ _id: eventId });
     const similarEvents = await Event.find({
       _id: { $ne: eventId }, // Exclude the current event
-      category: job.category,
+      category: event.category,
+      date: { $gte: currentDate },
     })
       .sort("-createdAt")
       .limit(3);
@@ -148,7 +148,7 @@ const createEvent = async (req, res) => {
       !tags ||
       !free ||
       !title ||
-      imageFile
+      !imageFile
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -201,7 +201,7 @@ const getHostedEvents = async (req, res) => {
     res.status(200).json({ success: true, events: hostedEvents });
   } catch (error) {
     res
-      .status(500)
+      .status(400)
       .json({ message: "Something went wrong", msg: error.message });
   }
 };
